@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  role          String   // Admin, Manager, Case Worker
+  status        String   @default("Active") // Active, Deactivated
+  lastLogin     DateTime?
+  loginAttempts Int      @default(0)
+  lockUntil     DateTime?
+  companyId     String?
+  company       Company? @relation(fields: [companyId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assignedCases Case[] @relation("AssignedCases")
+  createdCases  Case[] @relation("CreatedCases")
+  capturedInquiries ClientInquiry[] @relation("CapturedInquiries")
+  assignedInquiries ClientInquiry[] @relation("AssignedInquiries")
+
+  @@map("users")
+}
+
+model Company {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  domain        String?  @unique
+  licenseNumber String?
+  address       String?
+  contactEmail  String?
+  contactPerson String?
+  contactNumber String?
+  website       String?
+  shift         String   @default("Morning") // Morning, Evening
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users         User[]
+
+  @@map("companies")
+}
+
+model Case {
+  id            String   @id @default(cuid())
+  caseNumber    String   @unique
+  clientName    String
+  clientNationality String
+  clientRelStatus String
+  clientAddress String
+  clientEmail   String
+  clientPhone   String
+  clientDob     DateTime
+  immigStatus   String
+  immigHistory  String
+  documents     Json?    // Array of string URLs
+  deadlines     Json?    // Array of {date, title}
+  followups     Json?    // Array of {createdBy, message, role, type, createdAt}
+  status        String   @default("New")
+  caseworkerNote String? @db.Text
+  assignedToId  String?
+  assignedTo    User?    @relation("AssignedCases", fields: [assignedToId], references: [id])
+  createdById   String
+  createdBy     User     @relation("CreatedCases", fields: [createdById], references: [id])
+  adminAdvice   String?  @db.Text
+  adviceUpdatedAt DateTime?
+  hasNewAdvice  Boolean  @default(false)
+  lastUpdatedByCaseworker Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  inquiryId     String? @unique
+  inquiry       ClientInquiry? @relation("InquiryToCase", fields: [inquiryId], references: [id])
+
+  @@map("cases")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  eventType String
+  userId    String?
+  actorId   String?
+  details   String   @db.Text
+  ipAddress String?
+  timestamp DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  recipient String
+  type      String   // Deadline, Advice, Assignment, Followup, System
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  caseId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+model ClientInquiry {
+  id                 String   @id @default(cuid())
+  caseNumber         String   @unique
+  name               String
+  nationality        String
+  domain             String?  @db.VarChar(255) // Domain where the inquiry was captured
+  idDocuments        Json?    // Array of string URLs
+  immigrationStatus  String
+  immigrationHistory String   @db.Text
+  relationshipStatus String
+  residentialAddress String
+  capturedBy         User     @relation("CapturedInquiries", fields: [capturedById], references: [id])
+  capturedById       String
+  staffType          String   // Admin, Manager, Case Worker
+  assignedTo         User?    @relation("AssignedInquiries", fields: [assignedToId], references: [id])
+  assignedToId       String?
+  email              String
+  phoneNumber        String
+  dob                DateTime
+  deadlines          Json?    // Array of {date, title}
+  status             String   @default("Inquiry")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  case               Case?    @relation("InquiryToCase")
+
+  @@map("client_inquiries")
+}
