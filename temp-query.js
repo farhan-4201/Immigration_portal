@@ -1,0 +1,1 @@
+const {PrismaClient}=require("./lib/generated/prisma"); (async()=>{const p=new PrismaClient(); console.log(await p.user.findMany({select:{email:true,role:true,status:true,companyId:true}})); await p.$disconnect();})();
