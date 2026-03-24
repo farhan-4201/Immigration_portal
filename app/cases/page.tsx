@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
+import { useRouter } from 'next/navigation';
 import { fetcher } from '@/lib/fetcher';
 import {
   HiOutlineBriefcase,
@@ -13,6 +14,11 @@ import {
 import { FiLoader } from 'react-icons/fi';
 
 export default function CasesPage() {
+  const router = useRouter();
+  const { mutate } = useSWRConfig();
+  const { data: authData } = useSWR('/api/auth/me', fetcher);
+  const currentUser = authData?.user;
+
   const { data: casesData, mutate: mutateCases, isLoading: casesLoading } = useSWR<any[]>('/api/cases', fetcher);
   const cases = Array.isArray(casesData) ? casesData : [];
 
@@ -47,10 +53,20 @@ export default function CasesPage() {
       if (!res.ok) throw new Error();
 
       mutateCases(); // Revalidate SWR cache
+      mutate('/api/notifications');
       alert('Case assigned successfully!');
     } catch {
       alert('Failed to assign case.');
     }
+  };
+
+  const handleActionClick = (caseId: string) => {
+    if (currentUser?.role === 'Manager') {
+      router.push(`/?caseId=${caseId}`);
+      return;
+    }
+
+    assignCase(caseId);
   };
 
   return (
@@ -185,10 +201,10 @@ export default function CasesPage() {
                     <td className="p-6 text-right">
                       <div className="flex flex-col items-end gap-4">
                         <button
-                          onClick={() => assignCase(c.id)}
+                          onClick={() => handleActionClick(c.id)}
                           className="px-6 py-2 bg-primary hover:opacity-90 text-background rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-lg active:scale-95"
                         >
-                          Choose Staff
+                          {currentUser?.role === 'Manager' ? 'Monitor & Advise' : 'Choose Staff'}
                         </button>
                         <HiOutlineChevronRight className="w-5 h-5 text-text-tertiary group-hover:text-text-primary transition-colors" />
                       </div>

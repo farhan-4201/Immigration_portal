@@ -17,7 +17,7 @@ export default function UnauthorizedPage() {
         </div>
 
         <div className="flex flex-col gap-4 mt-8">
-          <Link href="/dashboard" className="btn-primary flex items-center justify-center gap-2">
+          <Link href="/" className="btn-primary flex items-center justify-center gap-2">
             Return to Dashboard
           </Link>
           <Link href="/login" className="btn-secondary flex items-center justify-center gap-2">

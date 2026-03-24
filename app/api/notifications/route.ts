@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
                             type: 'Deadline',
                             title: 'Critical Deadline',
                             message: `Task "${d.title}" for Case ${c.caseNumber} is due soon.`,
-                            link: `/dashboard?caseId=${c.id}`,
+                            link: `/?caseId=${c.id}`,
                             isRead: false,
                             createdAt: new Date(),
                         });

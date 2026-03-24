@@ -2,9 +2,11 @@
 const nextConfig = {
     reactStrictMode: true,
     output: 'standalone',
-    outputFileTracing: false,
     typescript: {
         ignoreBuildErrors: false,
+    },
+    experimental: {
+        optimizePackageImports: ['react-icons', 'lucide-react', 'date-fns', 'lodash'],
     },
     eslint: {
         // Skip linting during production build to avoid Windows glob/junction permission errors

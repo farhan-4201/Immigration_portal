@@ -44,7 +44,7 @@ export async function POST(
                     type: 'Advice', // Matching Prisma literal/string if not using enum
                     title: 'Action Required: Advice',
                     message: `Admin provided specific instructions for Case ${updatedCase.caseNumber}.`,
-                    link: `/dashboard?caseId=${updatedCase.id}`,
+                    link: `/?caseId=${updatedCase.id}`,
                     caseId: updatedCase.id
                 }
             });

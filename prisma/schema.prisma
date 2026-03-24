@@ -81,6 +81,11 @@ model Case {
   inquiryId     String? @unique
   inquiry       ClientInquiry? @relation("InquiryToCase", fields: [inquiryId], references: [id])
 
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([status])
+
   @@map("cases")
 }
 
@@ -107,6 +112,10 @@ model Notification {
   caseId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([recipient])
+  @@index([isRead])
+  @@index([createdAt])
 
   @@map("notifications")
 }
@@ -136,6 +145,10 @@ model ClientInquiry {
   updatedAt          DateTime @updatedAt
 
   case               Case?    @relation("InquiryToCase")
+
+  @@index([capturedById])
+  @@index([assignedToId])
+  @@index([createdAt])
 
   @@map("client_inquiries")
 }

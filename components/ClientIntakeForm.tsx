@@ -279,12 +279,6 @@ export default function ClientIntakeForm() {
               />
             </div>
           </div>
-          <Input
-            icon={HiOutlineGlobeAlt}
-            label="Source Domain (Tenant)"
-            value={formData.domain}
-            onChange={(v) => setFormData({ ...formData, domain: v })}
-          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 pt-8 md:pt-16 border-t border-border-primary">

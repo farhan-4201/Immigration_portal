@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useRef } from 'react';
 import { HiOutlineBell, HiOutlineClock, HiOutlineChatBubbleLeftEllipsis, HiOutlineBriefcase, HiOutlineCheck, HiOutlineDocumentText } from 'react-icons/hi2';
@@ -11,12 +11,62 @@ export default function NotificationCenter() {
   const [latestNotification, setLatestNotification] = useState<any>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const previousCountRef = useRef<number>(0);
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const toastQueueRef = useRef<any[]>([]);
 
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 10000); // Refresh every 10 seconds for real-time updates
     return () => clearInterval(interval);
   }, []);
+
+  const triggerToast = (notification: any) => {
+    setLatestNotification(notification);
+    setShowToast(true);
+
+    // Play role-specific notification sound
+    let soundFrequency = 800; // Default
+
+    if (notification.title?.includes('Manager')) {
+      soundFrequency = 1000;
+    } else if (notification.title?.includes('Admin')) {
+      soundFrequency = 900;
+    } else if (notification.title?.includes('Case Worker')) {
+      soundFrequency = 700;
+    }
+
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = soundFrequency;
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (err) {
+      // Ignore audio errors (e.g., autoplay restrictions)
+    }
+
+    // Auto-hide toast and process next in queue
+    setTimeout(() => {
+      setShowToast(false);
+      setLatestNotification(null);
+
+      const next = toastQueueRef.current.shift();
+      if (next) {
+        // Slight delay between toasts
+        setTimeout(() => triggerToast(next), 300);
+      }
+    }, 5000);
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -25,57 +75,23 @@ export default function NotificationCenter() {
         const rawData = await res.json();
         const data = Array.isArray(rawData) ? rawData : [];
 
-        // Check if there are new notifications
-        const unreadCount = data.filter((n: any) => !n.isRead).length;
+        // Check for newly arrived unread notifications by ID
+        const unread = data.filter((n: any) => !n.isRead);
+        const newUnread = unread.filter((n: any) => !seenIdsRef.current.has(n.id));
 
-        if (previousCountRef.current > 0 && unreadCount > previousCountRef.current) {
-          // New notification arrived
-          const newNotification = data.find((n: any) => !n.isRead);
-          if (newNotification) {
-            setLatestNotification(newNotification);
-            setShowToast(true);
+        if (newUnread.length > 0) {
+          newUnread.forEach((n: any) => {
+            seenIdsRef.current.add(n.id);
+            toastQueueRef.current.push(n);
+          });
 
-            // Play role-specific notification sound
-            let soundFrequency = 800; // Default
-
-            // Determine sound based on notification type/title
-            if (newNotification.title?.includes('Manager')) {
-              soundFrequency = 1000; // Higher pitch for Manager
-            } else if (newNotification.title?.includes('Admin')) {
-              soundFrequency = 900; // Medium pitch for Admin
-            } else if (newNotification.title?.includes('Case Worker')) {
-              soundFrequency = 700; // Lower pitch for Case Worker
-            }
-
-            // Create audio context for custom sound
-            try {
-              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-              const oscillator = audioContext.createOscillator();
-              const gainNode = audioContext.createGain();
-
-              oscillator.connect(gainNode);
-              gainNode.connect(audioContext.destination);
-
-              oscillator.frequency.value = soundFrequency;
-              oscillator.type = 'sine';
-
-              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-              oscillator.start(audioContext.currentTime);
-              oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (err) {
-              // Silently handle audio block (common browser policy)
-            }
-
-            // Auto-hide toast after 5 seconds
-            setTimeout(() => {
-              setShowToast(false);
-            }, 5000);
+          if (!showToast && !latestNotification) {
+            const next = toastQueueRef.current.shift();
+            if (next) triggerToast(next);
           }
         }
 
-        previousCountRef.current = unreadCount;
+        previousCountRef.current = unread.length;
         setNotifications(data);
       }
     } catch (err) {

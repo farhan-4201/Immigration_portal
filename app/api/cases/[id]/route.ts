@@ -143,7 +143,7 @@ export async function PATCH(
                 type: 'System',
                 title: 'Case Updated by Caseworker',
                 message: `Caseworker ${decoded.email || 'Staff'} updated Case ${existingCase.caseNumber}`,
-                link: `/dashboard?caseId=${id}`,
+                link: `/?caseId=${id}`,
                 caseId: id,
                 isRead: false,
             }));
