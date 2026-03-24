@@ -1,20 +1,20 @@
 module.exports = {
   apps: [
     {
-      name: "portal-frontend",
-      cwd: "/root/portal",
-      script: "/root/portal/node_modules/.bin/next",
-      args: "start -p 3001 -H 0.0.0.0",
+      name: "immigration-portal",
+      cwd: "/home/farhan/Immigration_portal",
+      script: "npm",
+      args: "run start",
       env: {
         NODE_ENV: "production",
-        PORT: 3001,
+        PORT: 3002,
       },
       max_memory_restart: "512M",
       autorestart: true,
       watch: false,
       merge_logs: true,
-      error_file: "/root/.pm2/logs/portal-frontend-error.log",
-      out_file: "/root/.pm2/logs/portal-frontend-out.log",
+      error_file: "/home/farhan/.pm2/logs/immigration-portal-error.log",
+      out_file: "/home/farhan/.pm2/logs/immigration-portal-out.log",
     },
   ],
 };
