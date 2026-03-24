@@ -86,7 +86,7 @@ export async function POST(
                     type: 'Followup', // Matching Prisma literal/string if not using enum
                     title: `New Followup from ${decoded.role}`,
                     message: `${decoded.role} added a followup to Case ${caseDoc.caseNumber}: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
-                    link: `/dashboard?caseId=${caseDoc.id}`,
+                    link: `/?caseId=${caseDoc.id}`,
                     caseId: caseDoc.id,
                     isRead: false,
                 }));

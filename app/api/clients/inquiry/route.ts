@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
           type: 'Assignment',
           title: 'New Case Assigned',
           message: `Case ${caseNumber} (${data.name}) was created and assigned to you.`,
-          link: `/dashboard?caseId=${newCase.id}`,
+          link: `/?caseId=${newCase.id}`,
           caseId: newCase.id
         }
       });

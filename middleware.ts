@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from './lib/auth';
 
 // Define protected and public routes
-const publicRoutes = ['/', '/login', '/unauthorized', '/api/auth/login'];
+const publicRoutes = ['/login', '/unauthorized', '/api/auth/login'];
 const adminRoutes = ['/admin', '/api/admin'];
 const managerRoutes = ['/manager', '/api/manager'];
 
@@ -46,6 +46,7 @@ export async function middleware(req: NextRequest) {
     if (cleanHost) {
         // Optimization: check main domains first to avoid API call
         const isMain = cleanHost === 'localhost' ||
+            cleanHost === '127.0.0.1' ||
             cleanHost === 'hrservices.me' ||
             cleanHost === 'admin.westburylaw.co.uk' ||
             cleanHost === 'portal.westburylaw.co.uk';
@@ -77,8 +78,15 @@ export async function middleware(req: NextRequest) {
 
     // 6. Check if route is public
     const isPublic = publicRoutes.includes(path);
+    
+    // Pass pathname to Next.js server components via headers
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('x-pathname', path);
+
     if (isPublic) {
-        return NextResponse.next();
+        return NextResponse.next({
+            request: { headers: requestHeaders }
+        });
     }
 
     // 6. Protect private routes
@@ -117,7 +125,7 @@ export async function middleware(req: NextRequest) {
 
     // --- IMMIGRATION PORTAL PROTECTION ---
     if (path.startsWith('/cases') || path === '/') {
-        if (role !== 'Case Worker' && role !== 'Admin') {
+        if (role !== 'Case Worker' && role !== 'Manager' && role !== 'Admin') {
             return NextResponse.redirect(new URL('/unauthorized', req.url));
         }
     }
@@ -132,7 +140,9 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
 
-    return NextResponse.next();
+    return NextResponse.next({
+        request: { headers: requestHeaders }
+    });
 }
 
 export const config = {

@@ -37,7 +37,7 @@ export async function PUT(req: NextRequest) {
           type: 'Assignment',
           title: 'New Case Assigned',
           message: `You have been assigned to Case ${updatedCase.caseNumber} (${updatedCase.clientName}).`,
-          link: `/dashboard?caseId=${updatedCase.id}`,
+          link: `/?caseId=${updatedCase.id}`,
           caseId: updatedCase.id
         }
       });

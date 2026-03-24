@@ -26,20 +26,39 @@ export async function GET(req: NextRequest) {
             }
         });
 
-        // Get workload counts for each staff member
-        const staffWithWorkload = await Promise.all(allStaff.map(async (u) => {
+        // Optimize workload counts with a groupBy query instead of N+1 count queries
+        const workerIds = allStaff.filter(s => s.role === 'Case Worker').map(s => s.id);
+        
+        let caseCounts: Record<string, number> = {};
+        if (workerIds.length > 0) {
+            const counts = await prisma.case.groupBy({
+                by: ['assignedToId'],
+                where: {
+                    assignedToId: { in: workerIds },
+                    status: { not: 'Approved' } // Or omit if you count all cases
+                },
+                _count: {
+                    _all: true
+                }
+            });
+            
+            caseCounts = counts.reduce((acc, curr) => {
+                if (curr.assignedToId) {
+                    acc[curr.assignedToId] = curr._count._all;
+                }
+                return acc;
+            }, {} as Record<string, number>);
+        }
+
+        const staffWithWorkload = allStaff.map((u) => {
             let workload = 0;
 
             if (u.role === 'Case Worker') {
-                workload = await prisma.case.count({ where: { assignedToId: u.id } });
-            } else {
-                // Workload based on cases managed/created? Original used createdBy which wasn't in schema
-                // I'll stick to a count of 0 for non-caseworkers if not specified
-                workload = 0;
+                workload = caseCounts[u.id] || 0;
             }
 
             return { ...u, _id: u.id, workload };
-        }));
+        });
 
         return NextResponse.json(staffWithWorkload);
     } catch (error) {
