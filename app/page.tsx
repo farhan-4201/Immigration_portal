@@ -257,7 +257,8 @@ function DashboardContent() {
   }
 
   return (
-    <div className="space-y-10 animate-cardAppear relative bg-background transition-colors duration-300">
+    <>
+      <div className="space-y-10 animate-cardAppear relative bg-background transition-colors duration-300">
       <style jsx>{`
         @keyframes slideInRight {
           from { opacity: 0; transform: translateX(20px); }
@@ -294,7 +295,7 @@ function DashboardContent() {
                   <span className="text-[10px] font-mono font-bold text-primary bg-primary/5 border border-primary/20 px-2.5 py-0.5 rounded-lg group-hover/ticker:bg-primary group-hover/ticker:text-white transition-all">{d.caseNumber}</span>
                   <span className="text-xs font-semibold text-zinc-900 dark:text-white tracking-tight group-hover/ticker:text-primary transition-colors font-sans">{d.title}</span>
                   <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.1em] border-l border-border-primary/30 pl-8 flex items-center gap-2 font-sans">
-                    <HiOutlineClock className="w-3.5 h-3.5 text-red-500/70" />
+                    <HiOutlineClock className="w-3.5 h-3.5 text-error/70" />
                     Due {new Date(d.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -305,7 +306,7 @@ function DashboardContent() {
       )}
       {/* Toast Notification System */}
       {toast && (
-        <div className={`fixed top-20 md:top-24 right-4 md:right-8 z-[9999] flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-slideInRight backdrop-blur-xl border ${toast.type === 'success' ? 'bg-emerald-500/90 text-white border-emerald-400/20' : 'bg-red-500/90 text-white border-red-400/20'
+        <div className={`fixed top-20 md:top-24 right-4 md:right-8 z-[9999] flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-slideInRight backdrop-blur-xl border ${toast.type === 'success' ? 'bg-success/90 text-white border-emerald-400/20' : 'bg-red-500/90 text-white border-red-400/20'
           }`}>
           {toast.type === 'success' ? <HiOutlineCheckBadge className="w-6 h-6" /> : <HiOutlineXCircle className="w-6 h-6" />}
           <span className="font-bold text-sm tracking-tight">{toast.message}</span>
@@ -332,8 +333,8 @@ function DashboardContent() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full pointer-events-none" />
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center">
-                  <HiOutlineClock className="w-6 h-6 text-red-500" />
+                <div className="w-12 h-12 bg-error/10 rounded-2xl flex items-center justify-center">
+                  <HiOutlineClock className="w-6 h-6 text-error" />
                 </div>
                 <div>
                   <h3 className="text-xl font-display font-bold text-text-primary tracking-tight">Active Milestone Tracker</h3>
@@ -354,7 +355,7 @@ function DashboardContent() {
                     <h4 className="text-sm font-bold text-text-primary mb-1 uppercase tracking-tight">{d.title}</h4>
                     <p className="text-[10px] font-medium text-text-tertiary truncate lowercase">Client: {d.clientId}</p>
                   </div>
-                  <div className="pt-4 border-t border-border-primary flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-red-500">
+                  <div className="pt-4 border-t border-border-primary flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-error">
                     <span className="flex items-center gap-1.5">
                       <HiOutlineCalendar className="w-3.5 h-3.5" />
                       {new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
@@ -445,10 +446,10 @@ function DashboardContent() {
                         )}
                       </td>
                       <td className="px-6 py-5 border-y border-border-primary">
-                        <span className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                          c.status?.toLowerCase() === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                        <span className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved' ? 'bg-success/10 text-success border-success/20' :
+                          c.status?.toLowerCase() === 'rejected' ? 'bg-error/10 text-error border-error/20' :
                             c.status?.toLowerCase() === 'waiting for decision' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                              c.status?.toLowerCase() === 'initial query' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                              c.status?.toLowerCase() === 'initial query' ? 'bg-primary/10 text-primary border-border-accent' :
                                 'bg-surface-secondary text-text-secondary border-border-primary'
                           }`}>
                           {c.status}
@@ -463,7 +464,7 @@ function DashboardContent() {
                         </button>
                         <button
                           onClick={() => handleDeleteCase(c.id)}
-                          className="p-2 text-text-tertiary hover:text-red-500 transition-colors"
+                          className="p-2 text-text-tertiary hover:text-error transition-colors"
                         >
                           <HiOutlineTrash className="w-4 h-4" />
                         </button>
@@ -611,7 +612,7 @@ function DashboardContent() {
                             <HiOutlineChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''} opacity-0 group-hover/name:opacity-100`} />
                           </span>
                           <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${person.status === 'Active' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-text-tertiary'}`} />
+                            <div className={`w-2 h-2 rounded-full ${person.status === 'Active' ? 'bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-text-tertiary'}`} />
                             <span className="text-[10px] uppercase font-bold text-text-tertiary tracking-widest">{person.status}</span>
                           </div>
                         </div>
@@ -628,7 +629,7 @@ function DashboardContent() {
 
                         <button
                           onClick={() => handleDeleteStaff(person.id)}
-                          className="w-12 h-12 rounded-2xl bg-surface-primary border border-border-primary text-text-tertiary hover:text-red-500 hover:border-red-500/20 hover:bg-red-500/10 transition-all flex items-center justify-center shadow-sm group-hover:translate-x-0 opacity-0 group-hover:opacity-100 translate-x-4 duration-300"
+                          className="w-12 h-12 rounded-2xl bg-surface-primary border border-border-primary text-text-tertiary hover:text-error hover:border-error/20 hover:bg-error/10 transition-all flex items-center justify-center shadow-sm group-hover:translate-x-0 opacity-0 group-hover:opacity-100 translate-x-4 duration-300"
                           title="Remove Person"
                         >
                           <HiOutlineTrash className="w-5 h-5" />
@@ -661,10 +662,10 @@ function DashboardContent() {
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-4">
-                                    <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl uppercase tracking-wider border ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                                      c.status?.toLowerCase() === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                    <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl uppercase tracking-wider border ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved' ? 'bg-success/10 text-success border-success/20' :
+                                      c.status?.toLowerCase() === 'rejected' ? 'bg-error/10 text-error border-error/20' :
                                         c.status?.toLowerCase() === 'waiting for decision' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                                          c.status?.toLowerCase() === 'initial query' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                          c.status?.toLowerCase() === 'initial query' ? 'bg-primary/10 text-primary border-border-accent' :
                                             'bg-primary/10 text-primary border-primary/20'
                                       }`}>
                                       {c.status}
@@ -740,10 +741,10 @@ function DashboardContent() {
                     <td className="px-6 py-6 text-text-tertiary border-y border-border-primary">{c.caseType || 'Immigration'}</td>
                     <td className="px-6 py-6 border-y border-border-primary">
                       <div className="flex items-center gap-3">
-                        <span className={`px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border inline-flex items-center gap-2 ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                          c.status?.toLowerCase() === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                        <span className={`px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border inline-flex items-center gap-2 ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved' ? 'bg-success/10 text-success border-success/20' :
+                          c.status?.toLowerCase() === 'rejected' ? 'bg-error/10 text-error border-error/20' :
                             c.status?.toLowerCase() === 'waiting for decision' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                              c.status?.toLowerCase() === 'initial query' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                              c.status?.toLowerCase() === 'initial query' ? 'bg-primary/10 text-primary border-border-accent' :
                                 'bg-primary/10 text-primary border-primary/20'
                           }`}>
                           {c.status}
@@ -782,10 +783,12 @@ function DashboardContent() {
       )}
 
       {/* Edit Modal - Universal for all roles */}
+      </div>
+
       {editingCase && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-xl z-[100] flex items-center justify-center p-2 md:p-4">
-          <div className="bg-surface-primary border border-border-primary rounded-[32px] md:rounded-[48px] shadow-[0_32px_80px_rgba(0,0,0,0.8)] w-full max-w-3xl max-h-[95vh] overflow-auto p-6 md:p-12 animate-cardAppear relative scrollbar-hide">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="fixed inset-0 bg-background/80 z-[100] flex items-center justify-center p-2 md:p-4">
+          <div className="bg-surface-primary border border-border-primary rounded-3xl shadow-gold-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 animate-cardAppear relative scrollbar-hide">
+            
 
             <div className="flex justify-between items-center mb-8 md:mb-12 relative z-10">
               <div>
@@ -794,7 +797,7 @@ function DashboardContent() {
               </div>
               <button
                 onClick={() => setEditingCase(null)}
-                className="w-12 h-12 flex items-center justify-center rounded-2xl bg-surface-secondary border border-border-primary text-text-tertiary hover:bg-surface-hover hover:text-text-primary transition-all"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-secondary border border-border-primary text-text-tertiary hover:bg-gold-dim hover:text-primary transition-all"
               >
                 <HiOutlinePlus className="w-6 h-6 rotate-45" />
               </button>
@@ -803,17 +806,17 @@ function DashboardContent() {
             <form onSubmit={handleUpdateCase} className="space-y-10 relative z-10">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-2.5">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Client Name</label>
+                  <label className="block text-[9px] font-bold uppercase tracking-[0.15em] text-primary/80 mb-1.5 ml-0.5">Client Name</label>
                   <input
-                    className="w-full bg-surface-secondary border border-border-primary rounded-2xl py-4.5 px-6 text-text-primary focus:border-primary/50 outline-none transition-all font-bold shadow-inner"
+                    className="w-full bg-surface-primary border border-border-primary rounded-xl py-3 px-4 text-[13px] text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all font-medium shadow-sm hover:border-border-accent/50"
                     value={editingCase.client?.name || editingCase.name || ''}
                     onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), name: e.target.value } })}
                   />
                 </div>
                 <div className="space-y-2.5">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Status</label>
+                  <label className="block text-[9px] font-bold uppercase tracking-[0.15em] text-primary/80 mb-1.5 ml-0.5">Status</label>
                   <select
-                    className="w-full bg-surface-secondary border border-border-primary rounded-2xl py-4.5 pl-6 pr-12 text-text-primary focus:border-primary/50 outline-none transition-all font-bold appearance-none"
+                    className="w-full bg-surface-primary border border-border-primary rounded-xl py-3 px-4 text-[13px] text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all font-medium shadow-sm hover:border-border-accent/50 appearance-none"
                     value={editingCase.status}
                     onChange={(e) => setEditingCase({ ...editingCase, status: e.target.value })}
                   >
@@ -842,42 +845,42 @@ function DashboardContent() {
                 </h4>
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Email</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Email</label>
                     <input
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50"
                       value={editingCase.client?.email || editingCase.email || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), email: e.target.value } })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Phone</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Phone</label>
                     <input
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50"
                       value={editingCase.client?.phoneNumber || editingCase.phoneNumber || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), phoneNumber: e.target.value } })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Date of Birth</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Date of Birth</label>
                     <input
                       type="date"
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all [color-scheme:dark]"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50 [color-scheme:dark]"
                       value={editingCase.client?.dob ? new Date(editingCase.client.dob).toISOString().split('T')[0] : ''}
                       onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), dob: e.target.value } })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Nationality</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Nationality</label>
                     <input
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50"
                       value={editingCase.client?.nationality || editingCase.nationality || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), nationality: e.target.value } })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Relationship Status</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Relationship Status</label>
                     <select
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all appearance-none outline-none"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50 appearance-none outline-none"
                       value={editingCase.client?.relationshipStatus || editingCase.relationshipStatus || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), relationshipStatus: e.target.value } })}
                     >
@@ -892,9 +895,9 @@ function DashboardContent() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Residential Address</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Residential Address</label>
                     <input
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50"
                       value={editingCase.client?.address || editingCase.address || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, client: { ...(editingCase.client || {}), address: e.target.value } })}
                     />
@@ -912,18 +915,18 @@ function DashboardContent() {
                 </h4>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Current Status</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Current Status</label>
                     <input
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50"
                       value={editingCase.immigration?.status || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, immigration: { ...(editingCase.immigration || {}), status: e.target.value } })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Immigration History</label>
+                    <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Immigration History</label>
                     <textarea
                       rows={3}
-                      className="w-full bg-surface-secondary border border-border-primary rounded-xl py-3.5 px-5 text-xs font-bold text-text-secondary focus:bg-surface-hover transition-all resize-none"
+                      className="w-full bg-surface-primary border border-border-primary rounded-lg py-2.5 px-3.5 text-xs text-text-primary focus:bg-surface-secondary focus:border-border-accent outline-none transition-all shadow-sm hover:border-border-accent/50 resize-none"
                       value={editingCase.immigration?.history || ''}
                       onChange={(e) => setEditingCase({ ...editingCase, immigration: { ...(editingCase.immigration || {}), history: e.target.value } })}
                     />
@@ -935,7 +938,7 @@ function DashboardContent() {
               <div className="space-y-6 pt-8 border-t border-border-primary">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold text-text-primary uppercase tracking-[0.2em] flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20 text-red-500">
+                    <div className="w-8 h-8 rounded-xl bg-error/10 flex items-center justify-center border border-error/20 text-error">
                       <HiOutlineClock className="w-4 h-4" />
                     </div>
                     Case Deadlines
@@ -953,11 +956,11 @@ function DashboardContent() {
                 </div>
                 <div className="grid gap-4">
                   {(editingCase.deadlines || []).map((d: any, idx: number) => (
-                    <div key={idx} className={`flex flex-col md:flex-row gap-5 p-6 border rounded-3xl transition-all ${d.achieved ? 'bg-emerald-500/5 border-emerald-500/20 opacity-70' : 'bg-surface-secondary/30 border-border-primary'}`}>
+                    <div key={idx} className={`flex flex-col md:flex-row gap-5 p-6 border rounded-3xl transition-all ${d.achieved ? 'bg-success/5 border-success/20 opacity-70' : 'bg-surface-secondary/30 border-border-primary'}`}>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center justify-between mb-1">
-                          <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Deadline Expiry</label>
-                          {d.achieved && <span className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-md font-bold flex items-center gap-1.5"><HiOutlineCheckBadge className="w-3.5 h-3.5" /> ACHIEVED</span>}
+                          <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Deadline Expiry</label>
+                          {d.achieved && <span className="text-[10px] bg-success text-white px-2 py-0.5 rounded-md font-bold flex items-center gap-1.5"><HiOutlineCheckBadge className="w-3.5 h-3.5" /> ACHIEVED</span>}
                         </div>
                         <input
                           type="datetime-local"
@@ -971,7 +974,7 @@ function DashboardContent() {
                         />
                       </div>
                       <div className="flex-[2] space-y-2">
-                        <label className="text-[9px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Observation / Task Name</label>
+                        <label className="block text-[8px] font-bold uppercase tracking-[0.15em] text-text-tertiary mb-1 ml-0.5">Observation / Task Name</label>
                         <div className="flex gap-4">
                           <input
                             className="w-full bg-surface-primary border border-border-primary rounded-xl py-3 px-4 text-xs font-bold text-text-primary focus:border-primary/50 outline-none placeholder:text-text-tertiary"
@@ -992,8 +995,8 @@ function DashboardContent() {
                                 setEditingCase({ ...editingCase, deadlines: newDeadlines });
                               }}
                               className={`p-3 rounded-xl transition-all shadow-lg border ${d.achieved
-                                ? 'bg-emerald-500 text-white border-emerald-400'
-                                : 'bg-surface-primary text-text-tertiary border-border-primary hover:border-emerald-500/50 hover:text-emerald-500'
+                                ? 'bg-success text-white border-emerald-400'
+                                : 'bg-surface-primary text-text-tertiary border-border-primary hover:border-success/50 hover:text-success'
                                 }`}
                               title={d.achieved ? "Mark as Pending" : "Mark as Achieved"}
                             >
@@ -1005,7 +1008,7 @@ function DashboardContent() {
                                 const newDeadlines = editingCase.deadlines.filter((_: any, i: number) => i !== idx);
                                 setEditingCase({ ...editingCase, deadlines: newDeadlines });
                               }}
-                              className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg border border-red-500/20"
+                              className="p-3 rounded-xl bg-error/10 text-error hover:bg-red-500 hover:text-white transition-all shadow-lg border border-error/20"
                             >
                               <HiOutlineTrash className="w-4 h-4" />
                             </button>
@@ -1047,7 +1050,7 @@ function DashboardContent() {
                 {editingCase.followups && editingCase.followups.length > 0 && (
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center justify-between ml-1">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 flex items-center gap-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
                         <HiOutlineChatBubbleLeftEllipsis className="w-4 h-4" />
                         Team Communication Thread — Case #{editingCase.caseNumber}
                       </label>
@@ -1061,26 +1064,26 @@ function DashboardContent() {
                       {/* Work Audit Summary for Admin/Manager */}
                       {(user?.role === 'Admin' || user?.role === 'Manager') && (
                         <div className="grid grid-cols-2 gap-4 mb-6">
-                          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Tasks Logged</span>
-                            <span className="text-2xl font-black text-emerald-500">{editingCase.followups.filter((f: any) => f.type === 'Work Log').length}</span>
+                          <div className="bg-success/10 border border-success/20 rounded-2xl p-4 flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-success uppercase tracking-widest">Tasks Logged</span>
+                            <span className="text-2xl font-black text-success">{editingCase.followups.filter((f: any) => f.type === 'Work Log').length}</span>
                           </div>
-                          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex flex-col items-center">
-                            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Active Notes</span>
-                            <span className="text-2xl font-black text-blue-500">{editingCase.followups.filter((f: any) => f.type !== 'Work Log').length}</span>
+                          <div className="bg-primary/10 border border-border-accent rounded-2xl p-4 flex flex-col items-center">
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Active Notes</span>
+                            <span className="text-2xl font-black text-primary">{editingCase.followups.filter((f: any) => f.type !== 'Work Log').length}</span>
                           </div>
                         </div>
                       )}
                       {editingCase.followups.filter((f: any) => f.type !== 'Private Note').map((followup: any, idx: number) => (
                         <div
                           key={idx}
-                          className={`rounded-2xl p-6 border ${followup.role === 'Manager' ? 'bg-blue-500/5 border-blue-500/20' :
+                          className={`rounded-2xl p-6 border ${followup.role === 'Manager' ? 'bg-primary/5 border-border-accent' :
                             followup.role === 'Admin' ? 'bg-purple-500/5 border-purple-500/20' :
                               'bg-zinc-500/5 border-zinc-500/20'
                             }`}
                         >
                           <div className="flex items-start justify-between mb-3">
-                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${followup.role === 'Manager' ? 'bg-blue-500/20 text-blue-500' :
+                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${followup.role === 'Manager' ? 'bg-primary/20 text-primary' :
                               followup.role === 'Admin' ? 'bg-purple-500/20 text-purple-500' :
                                 'bg-zinc-500/20 text-zinc-500'
                               }`}>
@@ -1114,13 +1117,13 @@ function DashboardContent() {
 
                 {/* Add new followup - Available for Manager, Admin, and Case Worker */}
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 ml-1 flex items-center gap-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-1 flex items-center gap-3">
                     <HiOutlineDocumentText className="w-4 h-4" />
                     Post Update to Thread
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full bg-blue-500/[0.03] border border-blue-500/10 rounded-3xl py-5 px-6 text-text-primary focus:bg-surface-secondary focus:border-blue-500/50 outline-none transition-all font-bold resize-none placeholder:text-text-tertiary text-sm leading-relaxed"
+                    className="w-full bg-gold-dim border border-border-accent rounded-3xl py-5 px-6 text-text-primary focus:bg-surface-secondary focus:border-primary outline-none transition-all font-bold resize-none placeholder:text-text-tertiary text-sm leading-relaxed"
                     placeholder={`Write a message to the team...`}
                     value={followupText}
                     onChange={(e) => setFollowupText(e.target.value)}
@@ -1129,7 +1132,7 @@ function DashboardContent() {
                     type="button"
                     onClick={() => handleAddFollowup(editingCase.id)}
                     disabled={updateLoading || !followupText.trim()}
-                    className="w-full h-14 bg-blue-500 text-white hover:opacity-90 rounded-[22px] font-semibold text-xs tracking-wide transition-all shadow-2xl shadow-blue-500/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-14 bg-primary text-white hover:opacity-90 rounded-[22px] font-semibold text-xs tracking-wide transition-all shadow-2xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {updateLoading ? <FiLoader className="w-5 h-5 animate-spin" /> : 'Send'}
                   </button>
@@ -1140,14 +1143,14 @@ function DashboardContent() {
                 <button
                   type="button"
                   onClick={() => setEditingCase(null)}
-                  className="flex-1 h-16 bg-primary text-white rounded-[22px] font-semibold text-xs tracking-wide transition-all shadow-lg"
+                  className="flex-1 h-12 bg-surface-secondary border border-border-primary text-text-primary hover:bg-surface-hover rounded-xl font-semibold text-xs tracking-wide transition-all"
                 >
                   Discard Changes
                 </button>
                 <button
                   type="submit"
                   disabled={updateLoading}
-                  className="flex-[2] h-16 bg-primary text-white hover:opacity-90 rounded-[22px] font-semibold text-xs tracking-wide transition-all shadow-2xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95"
+                  className="flex-[2] h-12 bg-primary text-white hover:opacity-90 rounded-xl font-semibold text-xs tracking-wide transition-all shadow-gold flex items-center justify-center gap-2 active:scale-95"
                 >
                   {updateLoading ? <FiLoader className="w-5 h-5 animate-spin" /> : 'Save Decisions'}
                 </button>
@@ -1158,7 +1161,7 @@ function DashboardContent() {
       )}
       {/* Dedicated Caseworker Note Modal */}
       {noteEditingCase && (
-        <div className="fixed inset-0 bg-background/60 backdrop-blur-md z-[110] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-background/80 z-[110] flex items-center justify-center p-4">
           <div className="bg-surface-primary border border-amber-500/20 rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.4)] w-full max-w-lg p-8 animate-cardAppear relative">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">
@@ -1180,7 +1183,7 @@ function DashboardContent() {
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-text-tertiary ml-1">Internal Log / Reminder</label>
+                <label className="block text-[9px] font-bold uppercase tracking-[0.15em] text-primary/80 mb-1.5 ml-0.5">Internal Log / Reminder</label>
                 <textarea
                   rows={8}
                   className="w-full bg-surface-secondary/50 border border-amber-500/10 rounded-2xl py-5 px-6 text-text-primary focus:border-amber-500/50 outline-none transition-all font-medium resize-none placeholder:text-text-tertiary text-sm leading-relaxed"
@@ -1211,7 +1214,7 @@ function DashboardContent() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { FiLogOut } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
@@ -9,8 +9,7 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
-      router.refresh();
+      window.location.href = '/login';
     } catch (error) {
       console.error('Logout failed');
     }
@@ -19,11 +18,36 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-3.5 p-3.5 rounded-xl w-full text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-all group font-semibold"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        width: '100%',
+        padding: '11px 14px',
+        borderRadius: '10px',
+        background: 'transparent',
+        border: '1px solid transparent',
+        color: 'var(--text-tertiary)',
+        fontSize: '14px',
+        fontFamily: 'var(--font-main)',
+        fontWeight: 400,
+        letterSpacing: '-0.005em',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(192, 86, 106, 0.08)';
+        e.currentTarget.style.color = '#c0566a';
+        e.currentTarget.style.borderColor = 'rgba(192, 86, 106, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'transparent';
+        e.currentTarget.style.color = 'var(--text-tertiary)';
+        e.currentTarget.style.borderColor = 'transparent';
+      }}
     >
-      <FiLogOut className="w-5 h-5 group-hover:scale-110 transition-transform opacity-70 group-hover:opacity-100" />
-      <span className="font-semibold">Sign Out</span>
+      <FiLogOut style={{ width: 16, height: 16, opacity: 0.7, flexShrink: 0 }} />
+      <span>Sign Out</span>
     </button>
   );
 }
-

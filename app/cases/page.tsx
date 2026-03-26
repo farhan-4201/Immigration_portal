@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
@@ -13,6 +13,15 @@ import {
 } from 'react-icons/hi2';
 import { FiLoader } from 'react-icons/fi';
 
+const getStatusConfig = (status: string) => {
+  const s = status?.toLowerCase() || '';
+  if (s === 'accepted' || s === 'approved') return { color: '#5a9e7e', bg: 'rgba(90,158,126,0.1)', border: 'rgba(90,158,126,0.2)' };
+  if (s === 'rejected') return { color: '#c0566a', bg: 'rgba(192,86,106,0.1)', border: 'rgba(192,86,106,0.2)' };
+  if (s === 'waiting for decision') return { color: '#c8a96e', bg: 'rgba(200,169,110,0.1)', border: 'rgba(200,169,110,0.2)' };
+  if (s === 'initial query') return { color: '#4a7fa5', bg: 'rgba(74,127,165,0.1)', border: 'rgba(74,127,165,0.2)' };
+  return { color: 'var(--text-secondary)', bg: 'var(--surface-secondary)', border: 'var(--border-primary)' };
+};
+
 export default function CasesPage() {
   const router = useRouter();
   const { mutate } = useSWRConfig();
@@ -25,193 +34,341 @@ export default function CasesPage() {
   const { data: workerData } = useSWR<any[]>('/api/users/caseworkers', fetcher);
   const caseWorkers = Array.isArray(workerData) ? workerData : [];
 
-  const loading = casesLoading;
+  const [selectedWorkers, setSelectedWorkers] = useState<Record<string, string>>({});
+  const [search, setSearch] = useState('');
 
-  // Selected worker per case (single assignment)
-  const [selectedWorkers, setSelectedWorkers] = useState<Record<string, string>>(
-    {}
-  );
+  const filteredCases = cases.filter(c => {
+    const q = search.toLowerCase();
+    return !q || (c.client?.name || c.clientName || '').toLowerCase().includes(q) || (c.caseNumber || '').toLowerCase().includes(q);
+  });
 
-  // Data fetching handled by SWR hooks above
-
-  /* ---------------- Assign Case ---------------- */
   const assignCase = async (caseId: string) => {
     const workerId = selectedWorkers[caseId];
-
-    if (!workerId) {
-      alert('Please select a case worker.');
-      return;
-    }
-
+    if (!workerId) { alert('Please select a case worker.'); return; }
     try {
       const res = await fetch('/api/cases/assign', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ caseId, caseWorkerId: workerId }),
       });
-
       if (!res.ok) throw new Error();
-
-      mutateCases(); // Revalidate SWR cache
+      mutateCases();
       mutate('/api/notifications');
       alert('Case assigned successfully!');
-    } catch {
-      alert('Failed to assign case.');
-    }
+    } catch { alert('Failed to assign case.'); }
   };
 
   const handleActionClick = (caseId: string) => {
-    if (currentUser?.role === 'Manager') {
-      router.push(`/?caseId=${caseId}`);
-      return;
-    }
-
+    if (currentUser?.role === 'Manager') { router.push(`/?caseId=${caseId}`); return; }
     assignCase(caseId);
   };
 
   return (
-    <div className="space-y-8 animate-cardAppear bg-background transition-colors duration-300">
-      {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div style={{ animation: 'fadeInUp 0.4s ease both' }}>
+      {/* Page header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        gap: 24,
+        marginBottom: 36,
+        flexWrap: 'wrap',
+      }}>
         <div>
-          <h1 className="text-2xl md:text-4xl font-bold text-text-primary tracking-tight">
-            Case Files
-          </h1>
-          <p className="text-text-tertiary mt-1 font-semibold uppercase tracking-widest text-[9px] md:text-[10px]">
-            Manage and track client applications
-          </p>
+          <div style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 9,
+            fontWeight: 600,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--primary)',
+            marginBottom: 8,
+            opacity: 0.7,
+          }}>Case Management</div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 36,
+            fontWeight: 700,
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+          }}>Case Files</h1>
+          <p style={{
+            fontSize: 14,
+            color: 'var(--text-secondary)',
+            marginTop: 8,
+            letterSpacing: '-0.005em',
+          }}>Manage and track client applications</p>
         </div>
-        <button className="w-full md:w-auto px-6 py-3.5 bg-primary text-background rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg">
-          <HiOutlinePlus className="w-5 h-5" />
-          Create New Case
-        </button>
-      </header>
 
-      {/* Search / Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-        <div className="bg-surface-primary border border-border-primary rounded-xl md:rounded-2xl flex-1 flex items-center px-4 md:px-5 py-3 md:py-3.5 gap-3 md:gap-4 group focus-within:border-primary/50 transition-all">
-          <HiOutlineMagnifyingGlass className="w-4 h-4 md:w-5 md:h-5 text-text-tertiary group-focus-within:text-primary transition-colors" />
+        <button style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '11px 22px',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '12px',
+          fontSize: 13,
+          fontWeight: 600,
+          fontFamily: 'var(--font-main)',
+          letterSpacing: '0.01em',
+          cursor: 'pointer',
+          boxShadow: '0 8px 24px -4px rgba(200,169,110,0.4)',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.boxShadow = '0 12px 32px -4px rgba(200,169,110,0.5)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 8px 24px -4px rgba(200,169,110,0.4)';
+        }}>
+          <HiOutlinePlus style={{ width: 16, height: 16 }} />
+          New Case
+        </button>
+      </div>
+
+      {/* Search & filter bar */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+        <div style={{
+          flex: 1,
+          position: 'relative',
+          background: 'var(--surface-primary)',
+          border: '1px solid var(--border-primary)',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 16px',
+          gap: 10,
+          transition: 'all 0.2s ease',
+        }}>
+          <HiOutlineMagnifyingGlass style={{ width: 16, height: 16, color: 'var(--text-tertiary)', flexShrink: 0 }} />
           <input
-            className="bg-transparent flex-1 outline-none text-text-primary placeholder:text-text-tertiary font-medium text-xs md:text-sm"
-            placeholder="Search by client or case ID..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by client name or case ID..."
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              outline: 'none',
+              padding: '12px 0',
+              fontSize: 13.5,
+              color: 'var(--text-primary)',
+              fontFamily: 'var(--font-main)',
+              letterSpacing: '-0.005em',
+            }}
           />
         </div>
-        <button className="bg-surface-primary border border-border-primary px-6 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 font-bold text-text-secondary hover:bg-surface-hover transition-all text-sm md:text-base">
-          <HiOutlineFunnel className="w-4 h-4" />
+        <button style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '0 20px',
+          background: 'var(--surface-primary)',
+          border: '1px solid var(--border-primary)',
+          borderRadius: '12px',
+          fontSize: 13,
+          fontWeight: 500,
+          color: 'var(--text-secondary)',
+          fontFamily: 'var(--font-main)',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          whiteSpace: 'nowrap',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'var(--surface-hover)';
+          e.currentTarget.style.color = 'var(--text-primary)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--surface-primary)';
+          e.currentTarget.style.color = 'var(--text-secondary)';
+        }}>
+          <HiOutlineFunnel style={{ width: 15, height: 15 }} />
           Filter
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-surface-primary border border-border-primary rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+      <div style={{
+        background: 'var(--surface-primary)',
+        border: '1px solid var(--border-primary)',
+        borderRadius: '20px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+      }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr className="border-b border-border-primary bg-surface-secondary/30">
-                <th className="p-6 text-[10px] font-bold uppercase tracking-[0.2em] text-text-tertiary">
-                  Client Name
-                </th>
-                <th className="p-6 text-[10px] font-bold uppercase tracking-[0.2em] text-text-tertiary">
-                  Type
-                </th>
-                <th className="p-6 text-[10px] font-bold uppercase tracking-[0.2em] text-text-tertiary">
-                  Status
-                </th>
-                <th className="p-6 text-[10px] font-bold uppercase tracking-[0.2em] text-text-tertiary">
-                  Assigned To
-                </th>
-                <th className="p-6 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-text-tertiary">
-                  Action
-                </th>
+              <tr style={{ borderBottom: '1px solid var(--border-primary)', background: 'var(--surface-secondary)' }}>
+                {['Client', 'Type', 'Status', 'Assigned To', 'Action'].map((h, i) => (
+                  <th key={h} style={{
+                    padding: '14px 20px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-tertiary)',
+                    textAlign: i === 4 ? 'right' : 'left',
+                  }}>{h}</th>
+                ))}
               </tr>
             </thead>
-
             <tbody>
-              {loading ? (
+              {casesLoading ? (
                 <tr>
-                  <td colSpan={5} className="p-12 text-center">
-                    <FiLoader className="w-8 h-8 animate-spin mx-auto text-primary" />
+                  <td colSpan={5} style={{ padding: '60px', textAlign: 'center' }}>
+                    <FiLoader style={{ width: 24, height: 24, animation: 'spin 1s linear infinite', margin: '0 auto', color: 'var(--primary)' }} />
                   </td>
                 </tr>
-              ) : cases.length === 0 ? (
+              ) : filteredCases.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-20 text-center font-bold text-text-tertiary">
-                    <HiOutlineBriefcase className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                    No cases found.
+                  <td colSpan={5} style={{ padding: '60px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                    <HiOutlineBriefcase style={{ width: 32, height: 32, margin: '0 auto 12px', opacity: 0.2 }} />
+                    <p style={{ fontSize: 13, fontWeight: 500 }}>No cases found</p>
                   </td>
                 </tr>
-              ) : (
-                cases.map(c => (
-                  <tr key={c.id} className="border-b border-border-primary hover:bg-surface-hover transition-colors group">
-                    <td className="p-6">
-                      <div className="font-bold text-text-primary text-base mb-1">{c.client?.name || c.clientName}</div>
-                      <div className="text-[10px] font-mono font-bold text-primary/80 uppercase tracking-wider">
-                        ID: {c.id.slice(-8).toUpperCase()}
+              ) : filteredCases.map((c, idx) => {
+                const sc = getStatusConfig(c.status);
+                return (
+                  <tr
+                    key={c.id}
+                    style={{
+                      borderBottom: '1px solid var(--border-primary)',
+                      transition: 'background 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    {/* Client */}
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ fontWeight: 500, fontSize: 14, color: 'var(--text-primary)', marginBottom: 3 }}>
+                        {c.client?.name || c.clientName}
                       </div>
+                      <div style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 9,
+                        fontWeight: 600,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        color: 'var(--primary)',
+                        opacity: 0.7,
+                      }}>{(c.caseNumber || c.id?.slice(-8) || '').toUpperCase()}</div>
                     </td>
 
-                    <td className="p-6 text-sm font-bold text-text-secondary">
-                      {c.caseType || c.immigration?.status || 'Unknown'}
+                    {/* Type */}
+                    <td style={{ padding: '16px 20px', fontSize: 13, color: 'var(--text-secondary)' }}>
+                      {c.caseType || c.immigration?.status || 'Immigration'}
                     </td>
 
-                    <td className="p-6">
-                      <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${c.status?.toLowerCase() === 'accepted' || c.status?.toLowerCase() === 'approved'
-                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                        : c.status?.toLowerCase() === 'rejected'
-                          ? 'bg-red-500/10 text-red-500 border-red-500/20'
-                          : c.status?.toLowerCase() === 'waiting for decision'
-                            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                            : c.status?.toLowerCase() === 'initial query'
-                              ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                              : 'bg-primary/10 text-primary border-primary/20'
-                        }`}>
-                        {c.status}
-                      </span>
+                    {/* Status */}
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '3px 10px',
+                        borderRadius: 100,
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 9,
+                        fontWeight: 700,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        color: sc.color,
+                        background: sc.bg,
+                        border: `1px solid ${sc.border}`,
+                      }}>{c.status}</span>
                     </td>
 
-                    <td className="p-6 space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-surface-secondary border border-border-primary flex items-center justify-center text-xs font-black text-text-tertiary shadow-inner group-hover:border-primary/30 transition-all">
-                          {c.assignedTo?.name?.charAt(0) || '?'}
+                    {/* Assigned To */}
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <div style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 8,
+                          background: 'var(--gold-dim)',
+                          border: '1px solid var(--border-accent)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: 'var(--primary)',
+                          fontFamily: 'var(--font-display)',
+                          flexShrink: 0,
+                        }}>
+                          {c.assignedTo?.name?.[0] || '?'}
                         </div>
-                        <span className="text-sm font-bold text-text-primary">
+                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>
                           {c.assignedTo?.name || 'Unassigned'}
                         </span>
                       </div>
-
                       <select
-                        className="text-[10px] font-bold uppercase tracking-wider bg-surface-secondary border border-border-primary rounded-xl p-2.5 w-full text-text-secondary focus:text-text-primary focus:border-primary/50 outline-none transition-all"
+                        style={{
+                          width: '100%',
+                          background: 'var(--surface-secondary)',
+                          border: '1px solid var(--border-primary)',
+                          borderRadius: '8px',
+                          padding: '7px 32px 7px 10px',
+                          fontSize: 11,
+                          fontWeight: 500,
+                          color: 'var(--text-secondary)',
+                          fontFamily: 'var(--font-main)',
+                          outline: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
                         value={selectedWorkers[c.id] || c.assignedTo?.id || ''}
-                        onChange={e =>
-                          setSelectedWorkers({
-                            ...selectedWorkers,
-                            [c.id]: e.target.value,
-                          })
-                        }
+                        onChange={e => setSelectedWorkers({ ...selectedWorkers, [c.id]: e.target.value })}
                       >
-                        <option value="">-- Reassign Case --</option>
+                        <option value="">— Reassign Case —</option>
                         {caseWorkers.map(worker => (
-                          <option key={worker.id} value={worker.id}>
-                            {worker.name}
-                          </option>
+                          <option key={worker.id} value={worker.id}>{worker.name}</option>
                         ))}
                       </select>
                     </td>
 
-                    <td className="p-6 text-right">
-                      <div className="flex flex-col items-end gap-4">
+                    {/* Action */}
+                    <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
                         <button
                           onClick={() => handleActionClick(c.id)}
-                          className="px-6 py-2 bg-primary hover:opacity-90 text-background rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-lg active:scale-95"
+                          style={{
+                            padding: '8px 16px',
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: 9,
+                            fontWeight: 700,
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 4px 12px rgba(200,169,110,0.25)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 6px 16px rgba(200,169,110,0.35)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(200,169,110,0.25)';
+                          }}
                         >
-                          {currentUser?.role === 'Manager' ? 'Monitor & Advise' : 'Choose Staff'}
+                          {currentUser?.role === 'Manager' ? 'Monitor' : 'Assign'}
                         </button>
-                        <HiOutlineChevronRight className="w-5 h-5 text-text-tertiary group-hover:text-text-primary transition-colors" />
+                        <HiOutlineChevronRight style={{ width: 16, height: 16, color: 'var(--text-tertiary)' }} />
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })}
             </tbody>
           </table>
         </div>
